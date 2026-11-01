@@ -85,9 +85,20 @@ el proyecto real.
 | 7 | Aportar al trabajo de un compañero con el mismo Issue, en la misma rama (no anidar ramas) | Varios colaboradores push a la misma rama (ya tienen permiso de escritura) | **YA MEDIBLE** — `reporte_contribucion_docs.sh` ya cuenta commits y líneas reales por estudiante; solo falta una nota en la plantilla de PR, no automatización nueva |
 | 8 | Día de reunión: el profesor revisa el Project Board, sigue el link al documento/carpeta, verifica `USO-IA.md`, verifica rama fusionada + Issue cerrado, revisa las razones del revisor y puede pedir cambios | Flujo manual del profesor, apoyado en un reporte (ver §5) | Extensión de `revisar_pendientes.sh` — ver §5 |
 
-Nota sobre el cierre de Issues: con "Closes #N" (o "Fixes #N") en la **descripción del PR**,
-GitHub cierra el Issue automáticamente al fusionar — no hace falta un mecanismo nuevo para
-"el Issue debe quedar closed", ya es nativo de GitHub en cuanto el PR correcto se fusiona.
+**Corrección (2026-11-01, tras leer el repo real de Bionex)**: lo que escribí arriba sobre
+"Closes #N" estaba mal. La plantilla de PR real que ya usan los equipos **no** usa esa
+palabra clave — solo pide el número del issue después de un `#` suelto (ver texto exacto en
+§3.1), así que fusionar el PR **no** cierra el Issue automáticamente. Y encontré algo que no
+esperaba: `marcar-revision-pendiente.yml` (el workflow de agosto, reabrir/cerrar un Issue con
+comentario, de uso exclusivo del profesor) **sigue vivo** en Bionex, corriendo en paralelo al
+flujo nuevo de PR. Esto aclara el paso 8 del flujo de Oscar: hay **dos ciclos de revisión
+distintos**, no uno:
+1. **Revisión entre pares** (concepto de aprobación) — gatilla la fusión del PR. Ya existe.
+2. **Revisión del profesor** (comentarios con permalinks en el Issue + este workflow) —
+   gatilla el cierre *definitivo* del Issue, después de que el PR ya se fusionó. Es el mismo
+   sistema que construimos en agosto, sigue siendo la pieza que decide si "el issue debería
+   quedar closed" del paso 8 — no hay que tocarlo, solo hay que traerlo también a
+   `Plantilla-Proyecto` (tampoco está ahí, ver §0).
 
 ## 3. Qué falta construir de verdad (actualizado tras revisar `curso-admin`, §0)
 
@@ -103,14 +114,29 @@ construirlo — ya existe y ya corre.
   para que los repos nuevos nazcan ya protegidos.
 - El workflow `concepto-de-aprobacion.yml` + la guía `APROBAR_UN_PR.md` (ya probados, de
   `concepto-aprobacion/` en `curso-admin`) — propagarlos aquí y luego a los 6 repos.
-- La plantilla de PR real que ya usan los equipos (`.github/pull_request_template.md`: Qué se
-  hizo / Qué decisión se tomó y por qué / Qué queda pendiente / `Close #`) — **necesito leer
-  el archivo real de un repo de equipo** (ej. Bionex) antes de recrearla aquí; no quiero
-  inventar de nuevo un texto que ya existe y que los estudiantes ya conocen. Es también donde
-  se agrega el nuevo checkbox de IA (ver 3.3).
+- `marcar-revision-pendiente.yml` — el workflow de agosto (reabrir/cerrar Issue con
+  comentario, exclusivo del profesor) **tampoco está** en `Plantilla-Proyecto` hoy, pese a
+  seguir vivo y en uso en los 6 repos de equipo (confirmado en Bionex). Se trae igual, sin
+  modificarlo.
+- **Leí el archivo real de Bionex** (`.github/pull_request_template.md`), textual:
+  ```
+   # Qué se hizo
+
+   # Qué decisión se tomó y por qué
+
+   # Qué queda pendiente
+
+   # Con esto empezamos a trabajar o cerramos
+  (escribe el número del issue justo después del '#' sin espacios)
+
+  #(número del issue)
+  ```
+  Nota: es un `#N` suelto, sin palabra clave `Closes`/`Fixes` — fusionar el PR no cierra el
+  Issue solo (ver corrección en §2). Reutilizar este texto tal cual, sin inventar uno nuevo;
+  es donde se agrega el checkbox de IA (ver 3.3).
 - Corregir el `README.md` de esta plantilla: describe `fixes #N` + push directo y 3
-  milestones; la realidad son PR+revisión+concepto y 4 milestones (falta "Semana 2 -
-  Definición del Reto").
+  milestones; la realidad son PR+revisión+concepto+cierre del profesor, y 4 milestones (falta
+  "Semana 2 - Definición del Reto").
 
 ### 3.2 `USO-IA.md` (plantilla, vive en la raíz de cada repo) — nuevo, frente B
 Log append-only, una entrada por uso declarado:
@@ -216,13 +242,15 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
 
 ## 8. Fases de construcción (revisado tras §0)
 
-1. Leer la plantilla de PR real de un repo de equipo (ej. Bionex) para no reinventarla.
+1. ~~Leer la plantilla de PR real de un repo de equipo~~ — hecho, ver §3.1 (texto exacto de
+   Bionex).
 2. Traer a `Plantilla-Proyecto`: ruleset `pr-obligatorio` (nuevo script, estilo
    `crear_ruleset_workflows.sh`), workflow `concepto-de-aprobacion.yml` + `APROBAR_UN_PR.md`
-   (ya probados en `curso-admin/concepto-aprobacion/`), y la plantilla de PR real del paso 1
-   con el checkbox de IA agregado.
+   (ya probados en `curso-admin/concepto-aprobacion/`), `marcar-revision-pendiente.yml` (el
+   de agosto, también falta aquí), y la plantilla de PR real del paso 1 con el checkbox de
+   IA agregado.
 3. Corregir el `README.md` de `Plantilla-Proyecto` (4 milestones, flujo PR+revisión+concepto
-   en vez de `fixes #N`).
+   +cierre del profesor en vez de `fixes #N`).
 4. Agregar la creación del ruleset `pr-obligatorio` a `crear_repos_grupos.sh`, para que los
    repos nuevos nazcan protegidos (igual patrón que ya existe para el ruleset `restriction`).
 5. Construir lo genuinamente nuevo: `USO-IA.md` (plantilla) + Action de nombre de rama válido

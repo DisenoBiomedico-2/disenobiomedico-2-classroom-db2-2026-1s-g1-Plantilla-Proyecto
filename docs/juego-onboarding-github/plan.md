@@ -249,18 +249,30 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
 
 1. ~~Leer la plantilla de PR real de un repo de equipo~~ — hecho, ver §3.1 (texto exacto de
    Bionex).
-2. Traer a `Plantilla-Proyecto`: ruleset `pr-obligatorio` (nuevo script, estilo
-   `crear_ruleset_workflows.sh`), workflow `concepto-de-aprobacion.yml` + `APROBAR_UN_PR.md`
-   (ya probados en `curso-admin/concepto-aprobacion/`), `marcar-revision-pendiente.yml` (el
-   de agosto, también falta aquí), y la plantilla de PR real del paso 1 con el checkbox de
-   IA agregado.
-3. Corregir el `README.md` de `Plantilla-Proyecto` (4 milestones, flujo PR+revisión+concepto
-   +cierre del profesor en vez de `fixes #N`).
-4. Agregar la creación del ruleset `pr-obligatorio` a `crear_repos_grupos.sh`, para que los
-   repos nuevos nazcan protegidos (igual patrón que ya existe para el ruleset `restriction`).
-5. Construir lo genuinamente nuevo: `USO-IA.md` (plantilla) + Action de nombre de rama válido
-   (agregada como status check al mismo `pr-obligatorio`).
+2. ~~Traer a `Plantilla-Proyecto`: workflow `concepto-de-aprobacion.yml` + `APROBAR_UN_PR.md`,
+   `marcar-revision-pendiente.yml`, plantilla de PR real + checkbox de IA~~ — hecho
+   (commit `8884207`, rama `feature/juego-onboarding-github`). También se agregó `USO-IA.md`
+   (la plantilla) porque el README y el PR template ya lo referencian.
+3. ~~Corregir el `README.md` de `Plantilla-Proyecto`~~ — hecho en el mismo commit: 4
+   milestones (ya automatizados al crear el repo, corregido también que el equipo NO los crea
+   a mano), flujo de ramas+PR+revisión con concepto+cierre del profesor en vez de `fixes #N`.
+4. ~~Script del ruleset `pr-obligatorio` + wiring en `crear_repos_grupos.sh`~~ — hecho en
+   `curso-admin` (commit `11f2f17`, pusheado a `main`): `scripts/crear_ruleset_pr_obligatorio.sh`,
+   probado contra Bionex (detecta el existente, no lo duplica) y contra esta misma plantilla
+   (se niega correctamente porque su `main` todavía no tiene el workflow — ver pendiente
+   abajo). También corregí de paso una nota desactualizada del README de `curso-admin` que
+   decía "sin activar" sobre el check de concepto, cuando ya está activo desde el 21 de
+   octubre.
+   **Pendiente real**: todo el punto 2-3 vive hoy solo en la rama `feature/juego-onboarding-github`
+   de `Plantilla-Proyecto`, no en su `main`. Mientras no se fusione, el ruleset `pr-obligatorio`
+   no se puede crear ahí (el script se niega a propósito) y los repos nuevos seguirían sin
+   heredar nada de esto. Decisión pendiente de Oscar: ¿fusionar ya esta rama a `main`, o seguir
+   acumulando aquí hasta que el juego (punto 8) también esté listo?
+5. Construir lo genuinamente nuevo: Action de nombre de rama válido (agregada como status
+   check al mismo `pr-obligatorio`). (`USO-IA.md` como plantilla ya quedó en el punto 2; falta
+   solo la verificación automática de que se actualizó cuando correspondía.)
 6. Agregar la verificación de `USO-IA.md` a `reporte_contribucion_docs.sh`.
-7. Propagar todo lo anterior a los 6 repos de equipo existentes (`propagar_archivo_plantilla.sh`).
+7. Propagar todo lo anterior a los 6 repos de equipo existentes (`propagar_archivo_plantilla.sh`
+   para los archivos; `crear_ruleset_pr_obligatorio.sh` ya no hace falta ahí, ya lo tienen).
 8. Repo de práctica del juego (Semana 1), reutilizando los artefactos ya puestos al día.
 9. Piloto con un equipo o estudiante voluntario antes de lanzar a todo el curso.

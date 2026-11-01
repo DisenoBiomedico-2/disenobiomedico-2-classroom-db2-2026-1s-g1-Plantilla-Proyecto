@@ -1,0 +1,61 @@
+name: Marcar revisión pendiente
+
+# Uso: después de dejar comentarios de revisión en el Issue (con permalinks
+# a las líneas del documento que comentaste -- vista "code" del archivo,
+# seleccionar línea(s), "..." -> Copy permalink), corre este workflow para
+# reabrir o cerrar el issue, con un mensaje de cierre de ronda.
+#
+#   - Reabrir: hay observaciones que el equipo debe corregir.
+#   - Cerrar: no se atendieron las observaciones dentro del plazo dado
+#     (ya calificado, sin más oportunidad).
+#
+# Uso exclusivo del profesor.
+on:
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: 'Número del issue a actualizar'
+        required: true
+        type: number
+      accion:
+        description: 'Qué hacer con el issue'
+        required: true
+        type: choice
+        options:
+          - reabrir
+          - cerrar
+      mensaje:
+        description: 'Mensaje (opcional, hay uno por defecto según la acción)'
+        required: false
+        type: string
+
+permissions:
+  issues: write
+
+jobs:
+  marcar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verificar que quien ejecuta es el profesor
+        if: github.actor != 'oscampo'
+        run: |
+          echo "::error::Este workflow es de uso exclusivo del profesor."
+          exit 1
+
+      - name: Reabrir o cerrar el issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACCION: ${{ inputs.accion }}
+          MENSAJE_EXTRA: ${{ inputs.mensaje }}
+          ISSUE: ${{ inputs.issue }}
+          REPO: ${{ github.repository }}
+        run: |
+          if [[ "$ACCION" == "reabrir" ]]; then
+            body="${MENSAJE_EXTRA:-Revisen mis observaciones en los comentarios de este issue (con links a las líneas del documento) y corrijan lo señalado. Cuando terminen, agreguen un comentario aquí y cierren el issue.}"
+            gh issue reopen "$ISSUE" --repo "$REPO" --comment "$body"
+            echo "Acción: issue reabierto."
+          else
+            body="${MENSAJE_EXTRA:-Issue cerrado. No se atendieron las observaciones dentro del plazo dado.}"
+            gh issue close "$ISSUE" --repo "$REPO" --comment "$body"
+            echo "Acción: issue cerrado."
+          fi

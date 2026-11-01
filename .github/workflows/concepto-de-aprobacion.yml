@@ -1,0 +1,305 @@
+name: Concepto de aprobación
+
+# Exige que quien aprueba un Pull Request deje un concepto: qué revisó, qué
+# encontró y por qué decide aprobar. Publica el estado "concepto-de-aprobacion"
+# sobre el último commit del PR; el ruleset 'pr-obligatorio' lo pide como
+# requisito para fusionar (ver scripts/exigir_concepto_aprobacion.sh en
+# curso-admin).
+#
+# El concepto se escribe en el cuadro de texto al aprobar (Files changed ->
+# Review changes -> Approve). Formato mínimo, con las tres etiquetas:
+#
+#   Revisé: qué archivos o partes revisaste y contra qué (issue, criterio, norma).
+#   Hallazgos: lo que encontraste, aunque sea "no encontré diferencias".
+#   Decisión: por qué apruebas.
+#
+# Debe tener al menos 80 caracteres, y TODAS las aprobaciones del PR deben
+# traerlo. Una aprobación sin concepto, o con uno que no cumple, deja el
+# estado en rojo y el PR no se puede fusionar. Quedan exentos los PR que no
+# cambian ningún archivo (por ejemplo, los de sincronización con main).
+#
+# Este archivo no puede ser modificado por los estudiantes (push ruleset
+# sobre .github/workflows/**). No usa secretos propios: solo GITHUB_TOKEN.
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  statuses: write
+
+# Un PR a la vez: evita comentarios duplicados cuando llegan varios eventos
+# seguidos (abrir el PR y enviar una revisión).
+concurrency:
+  group: concepto-aprobacion-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  evaluar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Evaluar el concepto de las aprobaciones
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          AUTOR: ${{ github.event.pull_request.user.login }}
+          URL_PR: ${{ github.event.pull_request.html_url }}
+          GUIA_URL: ${{ github.server_url }}/${{ github.repository }}/blob/main/.github/APROBAR_UN_PR.md
+          EVENTO: ${{ github.event_name }}
+          REVIEW_STATE: ${{ github.event.review.state }}
+        run: |
+          gh api "repos/$REPO/pulls/$PR/reviews?per_page=100" > reviews.json
+          cat > evaluar_concepto.js <<'NODE'
+          'use strict';
+          // Evalua si las aprobaciones de un PR traen un concepto (justificacion) valido.
+          // Se usa dentro de .github/workflows/concepto-de-aprobacion.yml. El mismo codigo
+          // se copia ahi (build_workflow.py) para que viva en una ruta que los estudiantes
+          // no pueden editar (push ruleset sobre .github/workflows/**).
+          //
+          // Reglas (decididas por Oscar el 2026-10-21):
+          //   - Cuenta como aprobacion vigente la ULTIMA revision de cada revisor que sea
+          //     APPROVED, CHANGES_REQUESTED o DISMISSED (los comentarios sueltos no
+          //     cambian el estado). Se ignoran el autor del PR y los bots.
+          //   - TODAS las aprobaciones vigentes deben traer un concepto valido: largo
+          //     minimo y las tres etiquetas (Revise, Hallazgos, Decision), sin importar
+          //     tildes ni mayusculas. Debe haber al menos una aprobacion.
+          //   - Exencion: un PR que no cambia ningun archivo (changed_files = 0), como los
+          //     de sincronizacion con main, no requiere concepto.
+
+          // Texto del estado cuando falla (decidido por Oscar, 2026-10-21): en la caja de
+          // fusion aparece como "x concepto-de-aprobacion <- Click aqui para detalles de
+          // este error". El clic lleva al comentario del bot, que trae el detalle.
+          const TEXTO_ERROR = '<- Click aquí para detalles de este error';
+
+          const MIN_CHARS = 80;
+          const ETIQUETAS = ['Revisé', 'Hallazgos', 'Decisión'];
+
+          const norm = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+          function motivo(d, minChars) {
+            const partes = [];
+            if (d.largo < minChars) partes.push(`${d.largo} de ${minChars} caracteres`);
+            if (d.faltan.length) partes.push(`faltan: ${d.faltan.join(', ')}`);
+            return `@${d.usuario} (${partes.join('; ')})`;
+          }
+
+          function evaluar(reviews, autor, opts) {
+            const minChars = (opts && opts.minChars) || MIN_CHARS;
+            const etiquetas = (opts && opts.etiquetas) || ETIQUETAS;
+            const cambios = opts && opts.cambiosArchivos;
+
+            // PR sin cambios de archivos (por ejemplo, sincronizacion con main): exento.
+            if (cambios === 0) {
+              return { ok: true, exento: true, descripcion: 'PR sin cambios de archivos: no requiere concepto', detalle: [] };
+            }
+
+            const ordenadas = [...reviews].sort((a, b) => Date.parse(a.submitted_at) - Date.parse(b.submitted_at));
+            const vigente = new Map();
+            for (const r of ordenadas) {
+              const u = r.user && r.user.login;
+              if (!u || u === autor || u.endsWith('[bot]')) continue;
+              if (!['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED'].includes(r.state)) continue;
+              vigente.set(u, r);
+            }
+            const aprobaciones = [...vigente.values()].filter((r) => r.state === 'APPROVED');
+            if (aprobaciones.length === 0) {
+              return { ok: false, motivo: 'sin_aprobacion', minChars, descripcion: TEXTO_ERROR, detalle: [], fallidas: [] };
+            }
+
+            const detalle = aprobaciones.map((r) => {
+              const texto = norm(r.body);
+              const largo = String(r.body || '').trim().length;
+              const faltan = etiquetas.filter((e) => !texto.includes(norm(e)));
+              return { usuario: r.user.login, largo, faltan, ok: largo >= minChars && faltan.length === 0 };
+            });
+
+            const malas = detalle.filter((d) => !d.ok);
+            if (malas.length === 0) {
+              const quienes = detalle.map((d) => '@' + d.usuario).join(', ');
+              return { ok: true, descripcion: `Concepto válido de ${quienes}`.slice(0, 140), detalle };
+            }
+            const extra = malas.length > 1 ? ` y ${malas.length - 1} más` : '';
+            return {
+              ok: false,
+              motivo: 'sin_concepto',
+              minChars,
+              descripcion: TEXTO_ERROR,
+              detalle,
+              fallidas: malas.map((d) => ({ usuario: d.usuario, detalle: motivo(d, minChars) })),
+            };
+          }
+
+          module.exports = { evaluar, MIN_CHARS, ETIQUETAS };
+
+          // Uso en el workflow: node evaluar_concepto.js reviews.json AUTOR CAMBIOS -> imprime JSON.
+          // CAMBIOS es el numero de archivos cambiados del PR (vacio = desconocido, no exenta).
+          if (require.main === module) {
+            const fs = require('fs');
+            const [archivo, autor, cambiosTxt] = process.argv.slice(2);
+            const reviews = JSON.parse(fs.readFileSync(archivo, 'utf8'));
+            const cambios = cambiosTxt !== undefined && cambiosTxt !== '' && !Number.isNaN(Number(cambiosTxt)) ? Number(cambiosTxt) : undefined;
+            const r = evaluar(reviews, autor, { cambiosArchivos: cambios });
+            console.log(JSON.stringify(r));
+          }
+          NODE
+          cambios="$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files)"
+          resultado="$(node evaluar_concepto.js reviews.json "$AUTOR" "$cambios")"
+          echo "$resultado"
+          echo "$resultado" > resultado.json
+
+          # 1) Comentario en el PR con el detalle del error, el formato y un ejemplo.
+          #    Se crea una vez y se actualiza en cada evento (lo identifica la marca
+          #    HTML del inicio). Si falla, el estado de más abajo igual se publica y
+          #    el PR no queda bloqueado por eso.
+          cat > comentario_concepto.js <<'NODE'
+          'use strict';
+          // Arma el comentario que el workflow deja (y mantiene actualizado) en cada PR
+          // para que quien revisa sepa DONDE y COMO escribir el concepto de la aprobacion.
+          // Se incrusta en concepto-de-aprobacion.yml (build_workflow.py), igual que
+          // evaluar_concepto.js.
+          //
+          // Entrada: el resultado de evaluar_concepto.js (JSON). Salida: { cuerpo, soloSiExiste }.
+          //   soloSiExiste = true => PR exento: no se crea comentario nuevo, solo se
+          //   actualiza el que ya exista.
+          //
+          // Version corta (2026-10-21, a partir de la prueba de Oscar: "claro pero un poco
+          // verboso"): la plantilla va siempre visible y el ejemplo queda plegado.
+
+          const MARCA = '<!-- concepto-de-aprobacion -->';
+
+          const PLANTILLA = [
+            'Revisé: qué archivos o partes revisaste y contra qué (issue, criterio, norma).',
+            'Hallazgos: lo que encontraste, aunque sea "no encontré diferencias".',
+            'Decisión: por qué apruebas.',
+          ];
+
+          // Una linea por etiqueta (ajuste de Oscar, 2026-10-21: en una sola linea se leia mal).
+          const EJEMPLO = [
+            'Revisé: Presupuesto_Detallado.md contra el issue 18 y la lista de materiales.',
+            'Hallazgos: los precios coinciden con las cotizaciones adjuntas y el total suma correctamente.',
+            'Decisión: apruebo porque el documento cumple lo pedido en el issue.',
+          ];
+
+          function plantilla() {
+            return [
+              '```text',
+              ...PLANTILLA,
+              '```',
+              '',
+              '<details><summary>Ver un ejemplo</summary>',
+              '',
+              '```text',
+              ...EJEMPLO,
+              '```',
+              '',
+              '</details>',
+            ];
+          }
+
+          function armar(resultado, opts) {
+            const minChars = (resultado && resultado.minChars) || (opts && opts.minChars) || 80;
+            const donde = 'en *Files changed* > *Review changes* > *Approve*';
+            // Enlace a la guia completa (opcional): al final de los avisos que explican como aprobar.
+            const guia = opts && opts.guiaUrl ? ['', 'Guía completa: [Cómo aprobar un PR](' + opts.guiaUrl + ')'] : [];
+
+            if (resultado.exento) {
+              return {
+                soloSiExiste: true,
+                cuerpo: [MARCA, '### Concepto de aprobación', '', 'Este PR no cambia ningún archivo: no requiere concepto.'].join('\n'),
+              };
+            }
+
+            if (resultado.ok) {
+              return {
+                soloSiExiste: false,
+                cuerpo: [MARCA, '### Concepto de aprobación registrado', '', resultado.descripcion + '. Requisito cumplido.'].join('\n'),
+              };
+            }
+
+            if (resultado.motivo === 'sin_aprobacion') {
+              return {
+                soloSiExiste: false,
+                cuerpo: [
+                  MARCA,
+                  '### Cómo aprobar este PR',
+                  '',
+                  'Para fusionarlo hace falta la aprobación de un compañero **con concepto escrito**. Escríbelo ' + donde + ' (un comentario suelto en la conversación no cuenta), con las tres etiquetas y mínimo ' + minChars + ' caracteres:',
+                  '',
+                  ...plantilla(),
+                  '',
+                  'Si hay algo por corregir, no apruebes: usa *Request changes*.',
+                  ...guia,
+                ].join('\n'),
+              };
+            }
+
+            const lista = (resultado.fallidas || []).map((f) => '- ' + f.detalle);
+            return {
+              soloSiExiste: false,
+              cuerpo: [
+                MARCA,
+                '### La aprobación no tiene un concepto válido',
+                '',
+                ...lista,
+                '',
+                'Quien aprobó debe **volver a aprobar** ' + donde + ', con las tres etiquetas y mínimo ' + minChars + ' caracteres. Este aviso se actualiza solo.',
+                '',
+                ...plantilla(),
+                ...guia,
+              ].join('\n'),
+            };
+          }
+
+          module.exports = { armar, MARCA };
+
+          // Uso en el workflow: node comentario_concepto.js resultado.json [GUIA_URL] -> imprime JSON {cuerpo, soloSiExiste}.
+          if (require.main === module) {
+            const fs = require('fs');
+            const resultado = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+            console.log(JSON.stringify(armar(resultado, { guiaUrl: process.argv[3] })));
+          }
+          NODE
+          comentario="$(node comentario_concepto.js resultado.json "$GUIA_URL")"
+          cuerpo="$(node -e "console.log(JSON.parse(process.argv[1]).cuerpo)" "$comentario")"
+          solo_si_existe="$(node -e "console.log(JSON.parse(process.argv[1]).soloSiExiste)" "$comentario")"
+          motivo="$(node -e "console.log(JSON.parse(process.argv[1]).motivo || '')" "$resultado")"
+          gh api "repos/$REPO/issues/$PR/comments?per_page=100" > comentarios.json || echo "[]" > comentarios.json
+          existente="$(node -e "const c = JSON.parse(require('fs').readFileSync('comentarios.json','utf8')).find(x => (x.body || '').includes('<!-- concepto-de-aprobacion -->')); console.log(c ? c.id : '')")"
+          existente_url="$(node -e "const c = JSON.parse(require('fs').readFileSync('comentarios.json','utf8')).find(x => (x.body || '').includes('<!-- concepto-de-aprobacion -->')); console.log(c ? c.html_url : '')")"
+          comentario_url="$existente_url"
+          # Cuando llega una APROBACIÓN sin concepto válido se borra el aviso viejo y
+          # se publica uno nuevo: así queda justo debajo de esa revisión, donde el
+          # revisor está mirando, y no enterrado arriba en la conversación. Es el
+          # único caso en que se recrea (genera una notificación). Un comentario en
+          # una línea, un "pedir cambios" o una revisión descartada también llegan
+          # como eventos pull_request_review, pero NO recrean: actualizan en su lugar.
+          # Si no se puede borrar, se actualiza el existente.
+          if [[ -n "$existente" && "$EVENTO" == "pull_request_review" && "$REVIEW_STATE" == "approved" && "$motivo" == "sin_concepto" ]]; then
+            if gh api -X DELETE "repos/$REPO/issues/comments/$existente" > /dev/null; then
+              comentario_url="$(gh api -X POST "repos/$REPO/issues/$PR/comments" -f body="$cuerpo" --jq .html_url)" || { comentario_url=""; echo "No se pudo crear el comentario"; }
+            else
+              comentario_url="$(gh api -X PATCH "repos/$REPO/issues/comments/$existente" -f body="$cuerpo" --jq .html_url)" || { comentario_url="$existente_url"; echo "No se pudo actualizar el comentario"; }
+            fi
+          elif [[ -n "$existente" ]]; then
+            comentario_url="$(gh api -X PATCH "repos/$REPO/issues/comments/$existente" -f body="$cuerpo" --jq .html_url)" || { comentario_url="$existente_url"; echo "No se pudo actualizar el comentario"; }
+          elif [[ "$solo_si_existe" != "true" ]]; then
+            comentario_url="$(gh api -X POST "repos/$REPO/issues/$PR/comments" -f body="$cuerpo" --jq .html_url)" || { comentario_url=""; echo "No se pudo crear el comentario"; }
+          fi
+
+          # 2) Estado de commit. Cuando falla dice "<- Click aquí para detalles de este
+          #    error" y el clic (en la caja de fusión al final del PR) lleva DIRECTO al
+          #    comentario de arriba, así no importa cuánta conversación haya en medio.
+          #    Si no hay comentario, el clic lleva a la guía corta.
+          estado="$(node -e "console.log(JSON.parse(process.argv[1]).ok ? 'success' : 'failure')" "$resultado")"
+          descripcion="$(node -e "console.log(JSON.parse(process.argv[1]).descripcion)" "$resultado")"
+          gh api -X POST "repos/$REPO/statuses/$HEAD_SHA" \
+            -f state="$estado" \
+            -f context="concepto-de-aprobacion" \
+            -f description="$descripcion" \
+            -f target_url="${comentario_url:-$GUIA_URL}"

@@ -20,20 +20,59 @@
 Para la evaluación de este curso, utilizamos la metodología **"Si no está en el Issue, no existe"**.
 
 ### 1. Configuración Inicial (Semana 1)
-1.  Vayan a la pestaña **Projects** de este repositorio.
-2.  Creen un **New Project** y seleccionen la vista **Table**.
-3.  Vayan a la pestaña **Issues** -> **Milestones** y creen 3 hitos:
-    *   `Semana 5 - Diseño Conceptual`
-    *   `Semana 11 - Pruebas y Validación`
-    *   `Semana 17 - Entrega Final`
-4.  Carguen todas sus tareas en el Project Board, asignen un **Responsable** y una **Fecha**.
+El repo de su equipo **ya nace con esto hecho automáticamente**, no hay que crearlo:
+*   Los 4 milestones del semestre, con fecha límite: `Semana 2 - Definición del Reto`,
+    `Semana 5 - Diseño Conceptual`, `Semana 11 - Pruebas y Validación`, `Semana 17 - Entrega Final`.
+*   Todas las tareas iniciales (`0.0`, `0.1`, `01`-`32`) ya creadas como Issues y asignadas al
+    milestone correspondiente.
+*   El **Project Board** ("Cronograma del Proyecto - *su repo*"), ya vinculado al repositorio,
+    con todos esos Issues importados y acceso de escritura para todo el equipo.
 
-### 2. Cómo entregar tareas
-El profesor **NO revisará** carpetas al azar buscando archivos. El profesor revisará el **Project Board**.
-*   Cada tarea completada debe tener un **Issue cerrado**.
-*   Para cerrar un Issue válidamente, deben vincular la evidencia:
-    *   **Si es código/diseño:** En el commit message usen `fixes #numero_issue`.
-    *   **Si es documento/foto:** Arrastren el archivo dentro del comentario del Issue y ciérrenlo.
+Lo único que queda a mano, porque GitHub no lo permite por API, es la **vista** del Project:
+1.  Abran la pestaña **Projects** → el Project ya vinculado.
+2.  En la vista **Table**: agreguen la columna **Milestone** (botón `+` al final de las
+    columnas) y oculten las que no usen, para ver de un vistazo a qué corte pertenece cada
+    tarea.
+3.  Asignen un **Responsable** (puede ser más de uno) y una **Fecha** a cada tarjeta —
+    cada integrante debe quedar asignado a al menos una tarea propia.
+4.  Opcional: creen una vista adicional tipo **Roadmap** o **Board** agrupada por `Status`,
+    con "Save view" para que quede guardada para todo el equipo.
+
+### 2. Cómo desarrollar y entregar una tarea
+El profesor **NO revisará** carpetas al azar buscando archivos. El profesor revisará el
+**Project Board** y los Pull Requests. No se trabaja con push directo a `main`: cada tarea se
+desarrolla en su propia rama y llega a `main` mediante un **Pull Request (PR)** revisado por
+un compañero.
+
+1.  **Creen una rama** para el Issue que les corresponde, con un nombre **descriptivo** —
+    *no* el genérico que GitHub ofrece por defecto al editar un archivo desde la web (del
+    tipo `usuario-patch-1`). Ejemplos válidos: `marco-teorico`, `diseno-de-detalle`,
+    `protocolo-pruebas-usabilidad`.
+2.  Trabajen su documento en esa rama. Si **usaron IA** para generarlo o asistirlo, declárenlo
+    en [`USO-IA.md`](USO-IA.md) antes de pedir la revisión: qué herramienta, para qué parte
+    (con un [permalink](https://docs.github.com/articles/getting-permanent-links-to-files) a
+    las líneas) y qué hicieron con el resultado. Usar IA no es una falta — no declararlo
+    cuando sí se usó, sí lo es.
+3.  **Abran el Pull Request** hacia `main`. Se carga automáticamente una plantilla: complétenla
+    (qué se hizo, qué decisión se tomó y por qué, qué queda pendiente, el checklist, y el
+    número del Issue al final).
+4.  **Pidan la revisión a un compañero.** Para que el PR se pueda fusionar, la aprobación debe
+    traer un concepto escrito (no basta un "ok" o "LGTM") — ver
+    [`.github/APROBAR_UN_PR.md`](.github/APROBAR_UN_PR.md) para el formato exacto. Mientras
+    falte o no sea válido, el check `concepto-de-aprobacion` queda en rojo al final del PR y
+    no se habilita el botón de fusión.
+5.  Al fusionarse el PR, el documento ya queda en `main` — pero eso **no cierra el Issue**.
+    El cierre definitivo lo decide el profesor (ver sección 3).
+
+### 3. Revisión del profesor
+Después de fusionado su PR, el profesor revisa el documento y deja sus observaciones como
+**comentarios del Issue correspondiente**, cada uno con un
+[permalink](https://docs.github.com/articles/getting-permanent-links-to-files) a la línea o
+rango exacto del documento (vista `code` del archivo → seleccionar línea(s) → `...` →
+**Copy permalink**). Si hay observaciones, reabre el Issue con un comentario pidiendo que se
+corrija; si no corrigen dentro del plazo, lo cierra sin más oportunidad. Cuando corrijan
+(en una rama/PR nueva o adicional sobre el mismo Issue), comenten en el Issue y ciérrenlo
+ustedes, o esperen a que el profesor lo revise y lo cierre.
 
 ---
 

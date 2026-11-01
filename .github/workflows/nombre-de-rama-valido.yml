@@ -1,0 +1,53 @@
+name: Nombre de rama válido
+
+# Publica el estado "nombre-de-rama-valido" sobre el commit del PR: falla si
+# la rama tiene el nombre genérico que GitHub asigna por defecto al editar
+# un archivo desde la web ("usuario-patch-N") o no es mínimamente
+# descriptiva. No necesita la API de GitHub para decidir -- el nombre de la
+# rama ya viene en el evento -- solo para publicar el resultado.
+#
+# Pensado para agregarse como status check requerido al ruleset
+# "pr-obligatorio" (ver crear_ruleset_pr_obligatorio.sh en curso-admin),
+# junto al de "concepto-de-aprobacion".
+#
+# Convención sugerida (no exigida por esta validación): "<issue>-slug-descriptivo",
+# ej. "14-marco-teorico" -- liga la rama al Issue sin pedir que se escriba dos veces.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  statuses: write
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validar nombre de rama
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          RAMA: ${{ github.head_ref }}
+        run: |
+          generico='^[A-Za-z0-9._-]+-patch-[0-9]+$'
+          descriptivo='^[A-Za-z0-9]+(-[A-Za-z0-9]+)+$'
+
+          estado="success"
+          descripcion="Nombre de rama válido: $RAMA"
+
+          if [[ "$RAMA" =~ $generico ]]; then
+            estado="failure"
+            descripcion="'$RAMA' es el nombre genérico que da GitHub por defecto. Usa uno descriptivo, ej. 'marco-teorico'."
+          elif [[ ! "$RAMA" =~ $descriptivo || ${#RAMA} -lt 6 ]]; then
+            estado="failure"
+            descripcion="'$RAMA' no es suficientemente descriptivo. Usa palabras separadas por guion, ej. 'diseno-de-detalle'."
+          fi
+
+          echo "Resultado: $estado -- $descripcion"
+
+          gh api "repos/$REPO/statuses/$SHA" \
+            -f state="$estado" \
+            -f context="nombre-de-rama-valido" \
+            -f description="${descripcion:0:140}" \
+            --silent

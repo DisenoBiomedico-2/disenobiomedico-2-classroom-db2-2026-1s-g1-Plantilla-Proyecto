@@ -227,18 +227,23 @@ fusionados del corte) en vez de un script aparte.
 Quedan por decidir (tu llamada, no la mía): valores numéricos exactos, y si alguna etapa
 amerita ser requisito de aprobación del corte en vez de solo puntaje.
 
-## 7. Decisiones aún abiertas
+## 7. Decisiones de §7 (cerradas el 2026-11-01)
 
-- **Repo de práctica del juego**: ¿individual por estudiante o por equipo? (sigue abierta de
-  la versión anterior de este plan).
-- **Peso en la nota del juego de Semana 1**: ¿gate informal sin nota, o un pequeño porcentaje
-  simbólico?
-- **Mínimo de personas por Issue real**: el flujo de revisión cruzada (paso 5-6) requiere que
-  cada Issue tenga ≥2 asignados. ¿Es una regla dura (ningún Issue con 1 solo responsable) o
-  una recomendación?
-- **Automatizar "el revisor correcto"** (fase 2, no ahora): ¿vale la pena construir la
-  verificación de que quien aprobó es específicamente el otro asignado al Issue, o el control
-  manual del profesor en la reunión es suficiente?
+- **Repo de práctica del juego — RESUELTO**: por equipo, no individual. Así se dan las
+  interacciones reales entre compañeros (Issues con varios asignados, aprobación de PR entre
+  pares) que no existen en un repo de una sola persona. El puntaje, sin embargo, es
+  **individual** — cada integrante se evalúa por sus propias acciones dentro del repo
+  compartido (igual principio que `reporte_contribucion_docs.sh` ya usa para el proyecto
+  real: señales objetivas por persona, no una nota de equipo repartida por igual).
+- **Peso en la nota del juego de Semana 1 — RESUELTO**: sin nota, pero **requisito** para
+  continuar en el curso (pass/fail) — no suma puntos, pero no completarlo bloquea avanzar
+  (por ejemplo, no se habilita el repo del proyecto real hasta certificarse).
+- **Mínimo de personas por Issue real — RESUELTO**: recomendación, no regla dura. Un Issue
+  con 1 solo responsable simplemente pide la revisión a cualquier compañero del equipo, no
+  necesariamente a otro asignado al mismo Issue.
+- **Automatizar "el revisor correcto" — RESUELTO**: no por ahora. El profesor ya lo confirma
+  en la reunión semanal (pregunta las razones del revisor); se reconsidera solo si aparece un
+  problema real.
 
 ## 8. Fases de construcción (revisado tras §0)
 

@@ -702,3 +702,35 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
       rúbrica que tenían la misma ambigüedad con `0.1`). Ningún cambio de lógica, solo texto
       y nombres. Validado (sintaxis bash/JS/YAML) y propagado a `DB2-Training` y a los tres
       repos de piloto.
+24. **Dos correcciones de estilo en todos los textos del juego** -- **hecho (2026-11-02)**.
+    - **Rayas (—) eliminadas de todo lo escrito esta sesión** (los 5 textos de tareas,
+      ambos README, `plan.md`): Oscar pidió explícitamente no usarlas, otra vez.
+      Reemplazadas por coma, dos puntos o paréntesis según el caso. Incluyó corregir de paso
+      "No usaron IA" (pasado, sin sentido como instrucción) a "No usen IA" (imperativo).
+    - **Voz de "ustedes" a "tú"**: las tareas `0` y `4` ya usaban tú (resabio del repo
+      individual), pero `1`, `2` y `3` seguían en plural, resabio del diseño original por
+      equipo. Oscar lo señaló al revisar; se corrigieron los verbos y pronombres de las
+      tres.
+    - Ambos cambios propagados a `curso-admin`/`DB2-Training` y a los issues ya creados en
+      los tres repos de piloto (reescribir el cuerpo vía API, ya que crear el issue de nuevo
+      no era una opción).
+25. **Bug real detectado por Oscar en un PR real: "hay 2 casillas sin marcar" pero el
+    estudiante no sabía cómo hacer una de ellas** -- **hecho (2026-11-02)**, caso
+    `ivasaor-practica#7`. Dos bugs distintos generaban el mismo síntoma:
+    - **Validador ciego a la casilla condicional de IA**: `revisar_pr.js` contaba cualquier
+      `- [ ]` sin marcar, incluida "Si usé IA, lo declaré en `USO-IA.md`" -- aunque el
+      estudiante hubiera respondido "No" (caso en que la casilla queda satisfecha por
+      definición, no hay nada que declarar). Arreglado: se excluye esa casilla del conteo
+      cuando la respuesta de IA es "No".
+    - **Las tareas enseñaban a enlazar el documento en el Project Board demasiado tarde**:
+      las 4 tareas (`1`-`4`) decían hacerlo "una vez fusionado el PR", en el paso de cerrar
+      -- pero la plantilla del PR exige esa misma casilla marcada *antes* de pedir la
+      revisión. El estudiante nunca había leído cómo hacer algo que ya se le exigía. Se
+      movió la instrucción a un paso nuevo justo después de crear/completar el documento
+      (antes de abrir el PR), con la sintaxis exacta de Markdown para comentar el link en el
+      issue (que es la misma "tarjeta" del Project Board), y se explicó por qué eso cumple
+      la casilla.
+    - Verificado en seco corriendo la lógica del validador contra el cuerpo real del PR
+      `ivasaor-practica#7`: antes del fix marcaba 2 casillas faltantes, después solo 1 (la
+      genuina). Propagado a `DB2-Training`, a los tres repos de piloto, y reescritos los
+      issues `1`-`4` ya creados en los tres.

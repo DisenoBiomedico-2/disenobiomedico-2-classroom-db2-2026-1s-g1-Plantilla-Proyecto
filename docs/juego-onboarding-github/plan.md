@@ -584,6 +584,22 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
       que contenga "falta la fecha" (único del chequeo ya removido) -- corrige el puntaje
       sin tocar el historial de GitHub. Verificado en vivo: issue `0` de `ivasaor` cerrado
       de nuevo sin reabrir, puntaje correcto en **20/100 (1/5 completado, 0 vueltas)**.
+    - **Confirmación definitiva (mismo día)**: Oscar notó que en `biomed` (repo de equipo
+      real, Project creado a mano, en uso activo desde hace meses) el panel "Fields" del
+      issue SÍ muestra Start date/Target date editables ahí mismo -- a diferencia de
+      `ivasaor-practica`, donde esa sección ni aparece. Esto sugería que el bug podía ser
+      específico de cómo `crear_project.sh` crea los Projects por script. Se sondeó
+      `biomed` con la misma consulta GraphQL contra el issue exacto de la captura (`#20`,
+      "14 Definición de Estrategia Regulatoria...", con Start date Sep 24 y Target date Oct
+      9 visibles en la UI) -- **mismo resultado: la API tampoco devuelve el valor ahí**.
+      Descarta la hipótesis de "es por cómo se creó el Project vía script": el bug se
+      reproduce igual en un Project real, creado a mano, con datos en uso real. Confirma que
+      la decisión de quitar el chequeo automático de fechas fue correcta y no hay arreglo
+      posible desde este lado -- es un límite real de la API pública de GitHub Projects v2.
+      La diferencia del panel "Fields" (presente en `biomed`, ausente en
+      `ivasaor-practica`) queda como misterio cosmético aparte, sin relación con la
+      disponibilidad del dato por API.
     - Pendiente, sin prisa: decidir cuándo fusionar `feature/juego-onboarding-github` a
       `main` -- el juego entra en uso hasta el próximo semestre. Posible seguimiento, no
-      urgente: reportarle este bug a GitHub Support.
+      urgente: reportarle este bug a GitHub Support (reproducible con el issue `#20` de
+      `biomed` como ejemplo real y verificable).

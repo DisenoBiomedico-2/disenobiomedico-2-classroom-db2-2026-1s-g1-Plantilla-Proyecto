@@ -452,5 +452,27 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
     anterior al pivote) a singular, para que quedara consistente con el resto del juego.
     Propagado a `DB2-Training`, a los tres repos de piloto, y al cuerpo ya creado del issue
     `0` en los tres.
+15. **Causa real de `botDB2` ausente en el selector del Project Board** -- **hecho
+    (2026-11-02)**. El acceso a un Project (v2) de GitHub es un control **separado** de ser
+    colaborador del repo (`updateProjectV2Collaborators`, vía GraphQL) -- `crear_project.sh`
+    solo le daba ese acceso al estudiante, nunca a `botDB2` (que sí es colaborador del repo,
+    por eso la API REST `/assignees/botDB2` confirmaba 204 pero el Project Board igual no lo
+    mostraba). `crear_juego_onboarding.sh` ahora pasa también a `botDB2` al crear el Project
+    de un repo nuevo. Para los tres repos de piloto ya creados: nuevo script
+    `dar_acceso_project.sh` (+ workflow `dar-acceso-project.yml`) que corrige un Project
+    existente sin crear uno nuevo -- corrido contra los tres, confirmado en el log de Actions
+    ("acceso Write otorgado: botDB2").
+16. **Hallazgo: nada revisa si lo que el estudiante hizo en el issue `0` está bien antes de
+    cerrarlo** -- **decisión tomada (2026-11-02)**. Probando como `ivasaor`, Oscar cerró el
+    issue `0` con solo el comentario "hecho." y preguntó si algo verificaba el contenido real
+    (vista Roadmap creada, Markers activados, auto-asignación, fechas) -- "respuesta corta:
+    no". Comparado con el proyecto real (README de `Plantilla-Proyecto`, §3): ahí fusionar el
+    PR tampoco cierra el Issue -- el profesor revisa el documento después del merge y recién
+    entonces se cierra. El juego actual no modela ese paso para los issues `1`-`4` (le dice al
+    estudiante que cierre apenas se fusiona el PR). Se le presentaron tres opciones a Oscar
+    (dejarlo así, agregar el patrón solo por texto, o explorar automatizarlo con el bot) --
+    **eligió dejarlo así**: el juego practica la mecánica (ramas, PR, revisión con concepto,
+    declaración de IA), no hay contenido real que un profesor revisaría, y simular esa
+    revisión sería "teatro sin sustancia". Sin cambios de código para este punto.
     - Pendiente, sin prisa: decidir cuándo fusionar `feature/juego-onboarding-github` a
       `main` -- el juego entra en uso hasta el próximo semestre.

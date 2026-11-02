@@ -385,6 +385,30 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
       "Qué se hizo". Propagado a `DB2-Training` y a los tres repos de piloto (incluida la rama
       del PR abierto en `oscamp0-practica`).
     - Con esto, el flujo completo del juego (creación, siembra, issues, revisión automática
-      con validación real de la plantilla) queda verificado de punta a punta. Pendiente, sin
-      prisa: decidir cuándo fusionar `feature/juego-onboarding-github` a `main` -- el juego
-      entra en uso hasta el próximo semestre.
+      con validación real de la plantilla) queda verificado de punta a punta.
+12. **Hallazgo: `nombre-de-rama-valido` fallaba sin ninguna guía de cómo corregirlo** --
+    **hecho (2026-11-02)**. Siguiendo probando sobre el mismo PR, Oscar abrió uno desde una
+    rama con el nombre genérico por defecto (`oscampo-patch-1`) y encontró que el check
+    correspondiente fallaba en rojo sin explicar qué hacer. Se agregó un comentario
+    automático (mismo patrón de "marca HTML + actualizar en vez de recrear" que
+    `concepto-de-aprobacion.yml`) que explica cómo renombrar la rama desde la pestaña
+    Branches.
+    - **Corrección sobre la marcha**: el primer texto del comentario afirmaba que renombrar
+      la rama desde la pestaña Branches "actualiza el PR automáticamente -- no hace falta
+      abrir uno nuevo". Oscar lo probó en vivo (PR real, método oficial: ícono de lápiz en
+      Branches) y el PR **sí se cerró**, exactamente igual que si se hubiera borrado la rama
+      y creado una nueva -- confirmando el mismo punto de confusión identificado el
+      2026-11-01 que motivó todo el rediseño del issue 4 original (ver abajo, "Pivote"). La
+      afirmación sobre el comportamiento de GitHub era incorrecta (al menos en este
+      contexto); corregida: el comentario ahora dice honestamente que renombrar **sí** cierra
+      el PR, que eso es normal, y que el siguiente paso es abrir un PR nuevo desde la rama ya
+      renombrada (el trabajo no se pierde). Revisado también `3-algo-no-cuadra.md` (issue del
+      juego): su Paso 4 ya decía esto correctamente desde el principio ("puede requerir...
+      cerrando el que estaba mal"), así que no necesitó corrección -- solo el comentario
+      nuevo tenía la afirmación equivocada. Propagado a `DB2-Training` y a los tres repos de
+      piloto.
+    - **Lección para el resto del juego**: cualquier guía futura sobre "cómo corregir algo en
+      un PR ya abierto" debe asumir que tocar el nombre de la rama (por cualquier método)
+      cierra el PR -- no hay atajo conocido para evitarlo. Pendiente, sin prisa: decidir
+      cuándo fusionar `feature/juego-onboarding-github` a `main` -- el juego entra en uso
+      hasta el próximo semestre.

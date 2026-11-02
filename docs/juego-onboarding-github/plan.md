@@ -293,5 +293,17 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
    para los archivos; `crear_ruleset_pr_obligatorio.sh` ya no hace falta ahí, ya lo tienen) --
    también diferido al próximo semestre, junto con el punto 7, para no interferir con el
    semestre en curso.
-9. Repo de práctica del juego (Semana 1), reutilizando los artefactos ya puestos al día.
-10. Piloto con un equipo o estudiante voluntario antes de lanzar a todo el curso.
+9. ~~Repo de práctica del juego (Semana 1)~~ — hecho (2026-11-02): repo plantilla
+   `DisenoBiomedico-2/DB2-Training` creado a mano por Oscar (esta sesión no puede crear repos
+   nuevos ni cambiar configuración de repo -- ambos bloqueados por el proxy del entorno;
+   Oscar lo creó y lo marcó *Template repository*), poblado con los mismos artefactos de
+   `Plantilla-Proyecto` + README con la narrativa. En `curso-admin`: manifiesto de las 4
+   órdenes, `crear_juego_onboarding.sh` (siembra Issues + Project Board + PR roto de la orden
+   3) y `crear_repos_juego.sh` / `crear-repos-juego.yml` (crea el repo de práctica de cada
+   equipo del roster, manual únicamente -- no se dispara al editar los rosters como sí hace
+   "Crear repos de grupo", para no invitar estudiantes sin pedirlo explícitamente). Todo
+   commit `fe83022` en `curso-admin`, main.
+10. Piloto con un equipo o estudiante voluntario antes de lanzar a todo el curso --
+    **pendiente, necesita decisión de Oscar**: correr `crear_repos_juego.sh` crea un repo real
+    e invita colaboradores reales (aunque sea un solo equipo de prueba), así que no lo corrí
+    todavía sin confirmación explícita.

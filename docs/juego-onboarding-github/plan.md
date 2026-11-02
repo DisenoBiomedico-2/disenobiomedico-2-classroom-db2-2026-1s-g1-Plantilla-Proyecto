@@ -263,16 +263,35 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
    abajo). También corregí de paso una nota desactualizada del README de `curso-admin` que
    decía "sin activar" sobre el check de concepto, cuando ya está activo desde el 21 de
    octubre.
-   **Pendiente real**: todo el punto 2-3 vive hoy solo en la rama `feature/juego-onboarding-github`
-   de `Plantilla-Proyecto`, no en su `main`. Mientras no se fusione, el ruleset `pr-obligatorio`
-   no se puede crear ahí (el script se niega a propósito) y los repos nuevos seguirían sin
-   heredar nada de esto. Decisión pendiente de Oscar: ¿fusionar ya esta rama a `main`, o seguir
-   acumulando aquí hasta que el juego (punto 8) también esté listo?
-5. Construir lo genuinamente nuevo: Action de nombre de rama válido (agregada como status
-   check al mismo `pr-obligatorio`). (`USO-IA.md` como plantilla ya quedó en el punto 2; falta
-   solo la verificación automática de que se actualizó cuando correspondía.)
-6. Agregar la verificación de `USO-IA.md` a `reporte_contribucion_docs.sh`.
-7. Propagar todo lo anterior a los 6 repos de equipo existentes (`propagar_archivo_plantilla.sh`
-   para los archivos; `crear_ruleset_pr_obligatorio.sh` ya no hace falta ahí, ya lo tienen).
-8. Repo de práctica del juego (Semana 1), reutilizando los artefactos ya puestos al día.
-9. Piloto con un equipo o estudiante voluntario antes de lanzar a todo el curso.
+   **Nota de cronograma (2026-11-01)**: todo el punto 2-3 vive hoy solo en la rama
+   `feature/juego-onboarding-github` de `Plantilla-Proyecto`, no en su `main` -- el ruleset
+   `pr-obligatorio` no se puede crear ahí hasta fusionar (el script se niega a propósito), y
+   los repos nuevos seguirían sin heredar nada de esto. Oscar aclaró que el juego entra en uso
+   hasta el **próximo semestre** (el actual sigue en curso) -- sin prisa por fusionar a `main`
+   todavía; seguimos acumulando en la rama.
+5. ~~Action de nombre de rama válido~~ — hecho (commits `23fccea` en `Plantilla-Proyecto` y
+   `451dd08` en `curso-admin`): nuevo workflow `nombre-de-rama-valido.yml` (rechaza el patrón
+   `usuario-patch-N` y nombres no descriptivos, sin necesitar la API), y
+   `crear_ruleset_pr_obligatorio.sh` ahora exige los dos checks (concepto + nombre de rama).
+6. **Hallazgo importante (2026-11-02)**: `USO-IA.md` **ya existe** en los 5 repos de equipo
+   que revisé (Bionex, MedDesign, los-errantes, biomed, los-100) -- pero cada equipo inventó
+   su propio formato, **los 5 son distintos entre sí** (narrativo por tarea, por tema, tabla
+   por Issue, tabla única, mezcla) y ninguno usa permalinks a líneas específicas como se pidió
+   originalmente. Se definió con Oscar el formato estándar (tabla por Issue, inspirada en la de
+   `los-errantes` -- la más completa -- con el permalink real agregado): Fecha, Herramienta,
+   Documento/parte (permalink), Para qué se usó, Qué se hizo con el resultado,
+   Corrección/verificación humana, Responsable. Ya actualizado en el `USO-IA.md` de
+   `Plantilla-Proyecto` (commit pendiente de este mismo turno). **Decisión de Oscar**: no se
+   migran retroactivamente los 5 formatos existentes -- quedan como están, el estándar nuevo
+   rige solo para el juego y los repos que se creen el próximo semestre.
+7. Agregar la verificación de `USO-IA.md` (contra el formato estándar) a
+   `reporte_contribucion_docs.sh` -- **diferido**: no tiene sentido construirlo ya, porque
+   ningún repo real usa todavía el formato estándar (ver punto 6) y ese script alimenta la
+   calificación del semestre en curso. Retomar cuando el formato estándar ya esté en uso real
+   (próximo semestre).
+8. Propagar todo lo anterior a los 6 repos de equipo existentes (`propagar_archivo_plantilla.sh`
+   para los archivos; `crear_ruleset_pr_obligatorio.sh` ya no hace falta ahí, ya lo tienen) --
+   también diferido al próximo semestre, junto con el punto 7, para no interferir con el
+   semestre en curso.
+9. Repo de práctica del juego (Semana 1), reutilizando los artefactos ya puestos al día.
+10. Piloto con un equipo o estudiante voluntario antes de lanzar a todo el curso.

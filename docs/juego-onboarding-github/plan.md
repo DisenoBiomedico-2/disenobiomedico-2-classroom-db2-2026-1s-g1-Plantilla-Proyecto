@@ -307,7 +307,23 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
    equipo del roster, manual únicamente -- no se dispara al editar los rosters como sí hace
    "Crear repos de grupo", para no invitar estudiantes sin pedirlo explícitamente). Todo
    commit `fe83022` en `curso-admin`, main.
-10. Piloto con un equipo o estudiante voluntario antes de lanzar a todo el curso --
-    **pendiente, necesita decisión de Oscar**: correr `crear_repos_juego.sh` crea un repo real
-    e invita colaboradores reales (aunque sea un solo equipo de prueba), así que no lo corrí
-    todavía sin confirmación explícita.
+10. Piloto con un equipo de prueba (`oscampo`, `oscamp0`, `ivasaor`) — **hecho, exitoso
+    (2026-11-02)**. Corrido tres veces contra `prueba-juego-2-practica`:
+    - 1ª vuelta: repo creado, milestone "Semana 1 - Onboarding" con fecha correcta, los 4
+      Issues asignados al milestone, Project Board vinculado y poblado, rama rota del issue 3
+      pre-sembrada y verificada (contenido + nombre correctos).
+    - Oscar probó la vista Roadmap en vivo y encontró que faltaba activar **Markers →
+      Milestone** para ver las marcas de inicio/fin del hito — se corrigió en el issue 0 del
+      juego *y* en el README real de `Plantilla-Proyecto` (la vista Roadmap+Markers pasó de
+      "opcional" a ser el paso principal, igual mecánica que usarán para los 3 cortes reales).
+    - 2ª vuelta, con `ivasaor` agregado al roster de prueba (no es miembro de la org, a
+      diferencia de `oscampo`/`oscamp0`): confirmado en vivo por Oscar que `ivasaor` sí recibe
+      una invitación real con estado "Pending Invite" y correo de GitHub -- a diferencia de
+      los miembros de la org, que entran directo sin invitación. Confirma que el flujo real de
+      invitación para estudiantes (siempre outside collaborators) funciona como se espera; no
+      era un bug, solo una diferencia de comportamiento según el tipo de cuenta invitada.
+    - Nota operativa: esta sesión de Code no puede crear repos, cambiar su configuración, ni
+      leer/escribir `collaborators`/`invitations` por la API -- todas esas acciones las tuvo
+      que hacer Oscar a mano o disparando el workflow vía `POST .../dispatches` (REST, sin
+      GraphQL) desde aquí. El workflow en sí corre sin problema en la infraestructura de
+      GitHub.

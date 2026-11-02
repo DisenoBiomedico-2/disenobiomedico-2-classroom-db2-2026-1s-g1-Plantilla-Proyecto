@@ -170,27 +170,31 @@ asignado al Issue" — eso lo confirma el profesor el día de la reunión (es ju
 del flujo: pregunta sobre las razones dadas). Se puede automatizar después si se vuelve un
 problema recurrente.
 
-## 4. El juego de Semana 1 — "MedGit: Simulacro de Laboratorio"
+## 4. El juego de Semana 1 — "MedGit: Simulacro de Proyecto"
 
-Mismo concepto narrativo que la versión anterior de este plan (laboratorio médico ficticio,
-"órdenes de trabajo" = Issues, "certificación" al completarlas), pero ahora las órdenes
-ensayan el flujo **completo** de §2, no una versión simplificada:
+**Actualizado (2026-11-02) con los ajustes de Oscar — esta es la versión final, construida e
+implementada.** Reemplaza la narrativa de "laboratorio médico ficticio" con "órdenes de
+trabajo" (versión descartada): ya no se habla de laboratorio ni de "orden" — todo se nombra
+como lo que es, un **issue**, dentro de un **proyecto** de práctica. 4 issues (no 6), cada
+uno un objeto real del manifiesto `scripts/issues_juego/` en `curso-admin`:
 
-1. **Orden 0**: aceptar el repo de práctica, organizar el Project Board con las órdenes 1-6.
-2. **Orden 1**: asignarse responsables (mínimo 2 personas por orden, para poder practicar
-   revisión cruzada real) y autoasignarse al menos una.
-3. **Orden 2**: crear una rama con nombre descriptivo ligado a la orden, abrir el PR,
-   completar la plantilla.
-4. **Orden 3 (con IA)**: una orden que explícitamente pide usar una IA para redactar un
-   fragmento, y declarar correctamente en `USO-IA.md` — practica la declaración, no solo la
-   mecánica de Git.
-5. **Orden 4**: actuar como revisor de la rama de un compañero (el otro asignado a la misma
-   orden): dejar una revisión con contenido real y aprobar o pedir cambios.
-6. **Orden 5**: colaborar en la rama de un compañero con el mismo Issue (co-escribir sin
-   crear una rama anidada).
-7. **Orden 6 — trampa a propósito**: un PR que alguien "ya abrió" pero con nombre de rama
-   genérico, o con `USO-IA.md` no declarado a pesar de evidencia de uso de IA, o con una
-   revisión tipo "lgtm" — la misión es detectar y corregir el error, no solo ejecutar un paso.
+1. **Issue 0 — Organiza el proyecto**: no produce documento. Pide crear una vista
+   **Roadmap** del Project (no solo Table), y para cada issue (`1`, `2`, `3`) asignar
+   Responsable(s) **y fechas de inicio/fin** dentro del milestone "Semana 1 - Onboarding"
+   (vence 7 días después de sembrado), guardando la vista (**Save view**). Cada integrante
+   debe quedar asignado a ≥1 issue.
+2. **Issue 1 — Protocolo de bioseguridad**: asignado a 2 personas a propósito. Rama
+   descriptiva, documento en `proyecto_ficticio/`, PR con la plantilla real, revisión con
+   concepto del otro asignado, fusión, enlazar en el Project Board, cerrar.
+3. **Issue 2 — Ficha del equipo (con IA)**: igual mecánica que el 1, pero exige usar IA y
+   declarar en `USO-IA.md` (formato estándar, con permalink) antes de pedir la revisión —
+   practica la declaración, no solo la mecánica de Git.
+4. **Issue 3 — Algo no cuadra (la trampa)**: `crear_juego_onboarding.sh` ya deja una rama con
+   nombre genérico (`oscampo-patch-1`) y un commit, pero **no abre el PR** — eso lo hace el
+   equipo, y ahí mismo ven el check `nombre-de-rama-valido` en rojo. (Se descartó que el
+   script abriera el PR por ellos: requeriría permiso de escritura sobre Pull Requests que
+   `ORG_ADMIN_TOKEN` no tiene, y de todas formas abrir el PR es parte de lo que este issue
+   debe practicar — mejor diseño, no solo una limitación técnica.)
 
 Reutiliza exactamente los artefactos de §3 — el repo de práctica corre con las mismas
 plantillas/Actions/protecciones que los repos reales, así la práctica es 1:1, no una

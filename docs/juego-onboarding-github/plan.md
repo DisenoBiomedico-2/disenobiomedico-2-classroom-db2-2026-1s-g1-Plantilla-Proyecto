@@ -409,6 +409,28 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
       piloto.
     - **Lección para el resto del juego**: cualquier guía futura sobre "cómo corregir algo en
       un PR ya abierto" debe asumir que tocar el nombre de la rama (por cualquier método)
-      cierra el PR -- no hay atajo conocido para evitarlo. Pendiente, sin prisa: decidir
-      cuándo fusionar `feature/juego-onboarding-github` a `main` -- el juego entra en uso
-      hasta el próximo semestre.
+      cierra el PR -- no hay atajo conocido para evitarlo.
+13. **Hallazgo: corregir el nombre de rama obliga a llenar la plantilla del PR dos veces** --
+    **hecho (2026-11-02)**. Siguiendo de §12: Oscar confirmó con captura de pantalla que
+    renombrar desde la pestaña Branches (el método "oficial") sí cierra el PR, y notó que
+    abrir el PR nuevo significa volver a escribir toda la descripción desde cero -- "doloroso"
+    para un estudiante. Dos mitigaciones, ninguna elimina el problema de raíz (no hay forma de
+    renombrar una rama sin cerrar su PR), pero lo reducen:
+    - **Issue `3` reordenado**: antes, el flujo era abrir el PR con el nombre genérico
+      `botDB2-patch-1` primero, ver el check fallar, y recién ahí corregir -- exactamente el
+      camino que fuerza a llenar la plantilla dos veces. Ahora el issue enseña a reconocer el
+      patrón `usuario-patch-N` (ya visto en el issue `1`) y renombrar la rama *antes* de que
+      exista cualquier PR sobre ella -- sin PR abierto, renombrar no tiene efectos
+      secundarios. Se pierde la experiencia de "ver un check en rojo" para este caso
+      específico, pero esa lección ya se cubre en todo PR vía `concepto-de-aprobacion`
+      (siempre rojo hasta que `botDB2` aprueba), así que no es una pérdida real. Se agregó el
+      gif 11 (`renombrar-rama.gif`, pendiente de grabar por Oscar).
+    - **Para el caso no previsto** (un estudiante crea su propia rama genérica por accidente,
+      ej. editando un archivo directo desde `main` sin crear rama antes): el comentario del
+      check `nombre-de-rama-valido` ahora sugiere copiar la descripción del PR antes de que
+      se cierre (sigue visible en *Pull requests* → filtro *Closed*) en vez de reescribirla, y
+      da el tip preventivo de crear la rama con buen nombre antes de tocar archivos.
+    - Propagado a `DB2-Training`, a los tres repos de piloto, y al cuerpo ya creado del issue
+      `3` en los tres (vía `PATCH .../issues/{n}`, para que coincida con el texto nuevo).
+    - Pendiente, sin prisa: decidir cuándo fusionar `feature/juego-onboarding-github` a
+      `main` -- el juego entra en uso hasta el próximo semestre.

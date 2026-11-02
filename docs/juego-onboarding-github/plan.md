@@ -499,7 +499,39 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
       puede editar logueado como `botDB2`); prueba en vivo pendiente hasta entonces.
     - Oscar también planteó que el juego necesita **puntaje** para dar motivación ("pensemos
       en que se trata de un juego") -- contradice el "pass/fail, sin nota" fijado en todos los
-      README hasta ahora. Tema abierto, sin diseño cerrado todavía -- ver próxima entrada de
-      este plan cuando se decida.
+      README hasta ahora.
+18. **Sistema de puntaje** -- **hecho (2026-11-02)**. Decisiones de Oscar: el puntaje **sí
+    cuenta para algo real** -- se necesita 80/100 o más para que el juego cuente como
+    aprobado (no basta con cerrar los 5 issues de cualquier forma); 5 puntos de penalidad por
+    cada "vuelta extra". Posible uso futuro, sin decidir todavía: bonificación sobre la nota
+    del primer corte del proyecto real.
+    - Fórmula: empieza en 100, -5 por cada `REQUEST_CHANGES` de `botDB2` en cualquier PR del
+      repo, -5 por cada reapertura del issue `0`. Decisión de diseño propia (no de Oscar,
+      simplificación técnica): contar las vueltas de forma **global**, no atribuidas a un
+      issue específico -- evita depender de que GitHub enlace correctamente cada PR con su
+      issue, enlace que se rompe si el PR se cierra y se abre uno nuevo (ej. al corregir un
+      nombre de rama, ver §13). Se recalcula completo cada vez (nunca acumula historial),
+      mismo principio que el resto de los checks del juego.
+    - Nuevo `.github/scripts/actualizar_puntaje.js` en `DB2-Training`, llamado al final de
+      `revision-del-companero.yml` y `revision-issue-0.yml` (ambos workflows ahora hacen
+      checkout del repo para poder ejecutarlo). Publica el resultado en un issue marcador
+      nuevo, **"📊 Tu puntaje"**, creado por `crear_juego_onboarding.sh` (sin milestone, para
+      no contar como una tarea más) -- para los tres repos de piloto ya sembrados, creado a
+      mano vía REST (`gh issue create` usa GraphQL internamente, bloqueado desde esta sesión;
+      `gh api POST .../issues` sí funciona).
+    - Verificado en seco (no en vivo, requiere el permiso nuevo del token -- ver abajo) contra
+      datos simulados: 2 vueltas (1 reapertura + 1 `CHANGES_REQUESTED`) -> 90/100, calculado
+      y formateado correctamente.
+    - Requiere ampliar `BOT_COMPANERO_TOKEN`: permiso de repo "Issues: Read and write" (ya
+      necesario para `revision-issue-0.yml`, ver §15) y permiso de organización
+      "Projects: Read" (también ya necesario ahí) -- no hace falta nada adicional solo para
+      el puntaje, reutiliza los mismos dos permisos. Prueba en vivo pendiente de que Oscar
+      los agregue.
+    - Nota operativa: al propagar a los repos de piloto, un `git push` a una rama vieja
+      (`archivo-de-prueba`, ya renombrada por Oscar a `nuevo-archivo-de-prueba` en una prueba
+      anterior) recreó por accidente esa rama en `oscamp0-practica` desde una copia local
+      obsoleta de esta sesión -- no se pudo borrar (el proxy de esta sesión bloquea `git push
+      --delete` y `DELETE .../git/refs/...`), queda ahí sin usarse, inofensiva (ningún PR la
+      referencia). Oscar puede borrarla a mano si quiere prolijidad.
     - Pendiente, sin prisa: decidir cuándo fusionar `feature/juego-onboarding-github` a
       `main` -- el juego entra en uso hasta el próximo semestre.

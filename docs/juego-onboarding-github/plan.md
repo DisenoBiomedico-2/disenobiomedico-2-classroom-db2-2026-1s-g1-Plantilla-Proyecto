@@ -533,5 +533,26 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
       obsoleta de esta sesión -- no se pudo borrar (el proxy de esta sesión bloquea `git push
       --delete` y `DELETE .../git/refs/...`), queda ahí sin usarse, inofensiva (ningún PR la
       referencia). Oscar puede borrarla a mano si quiere prolijidad.
+19. **Prueba en vivo del permiso nuevo del token + hallazgo del puntaje engañoso** -- **hecho
+    (2026-11-02)**. Oscar agregó los permisos nuevos a `BOT_COMPANERO_TOKEN` (es un token
+    **classic**, no fine-grained como se asumió al principio -- `repo` ya cubría Issues
+    read/write, solo hizo falta agregar `read:project`). Reabrir/cerrar el issue `0` de
+    `ivasaor-practica` confirmó `revision-issue-0.yml` funcionando en vivo end-to-end
+    (reabre con la lista correcta, puntaje se actualiza). Intentar probar el camino del PR
+    (`revision-del-companero.yml`) reveló una limitación nueva de esta sesión: **un PR creado
+    enteramente desde aquí (incluso vía API, atribuido a `oscampo`) no dispara ningún
+    workflow** -- ni los que ya funcionaban antes (`nombre-de-rama-valido`,
+    `concepto-de-aprobacion`). Un PR creado por un humano real en el navegador sí dispara
+    todo con normalidad (confirmado antes en esta misma sesión, PR #6/#7). Pendiente: Oscar
+    debe probar ese camino él mismo con un PR real para confirmar el puntaje ahí también.
+    - **Hallazgo real, de Oscar**: con el issue `0` cerrado (1 reapertura) la fórmula daba
+      95/100 -- parecía "casi terminado" sin haber tocado los issues `1`-`4`. Nueva fórmula
+      (ver cambios de código en `DB2-Training`, mismo día): `20 * issues_completados - 5 *
+      vueltas_totales` -- 20 puntos por cada uno de los 5 issues ya **cerrado** (progreso
+      real, verificable sin ambigüedad), penalidad global de vueltas igual que antes. El
+      veredicto aprobado/no-aprobado (80/100) solo se muestra cuando los 5 están cerrados;
+      antes de eso el marcador solo informa progreso. Verificado en vivo: con el issue `0`
+      reabierto otra vez (2 reaperturas, 0/5 completados) el marcador mostró correctamente
+      **0/100**, no un número inflado.
     - Pendiente, sin prisa: decidir cuándo fusionar `feature/juego-onboarding-github` a
       `main` -- el juego entra en uso hasta el próximo semestre.

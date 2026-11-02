@@ -675,3 +675,30 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
       pantalla -- aparecía en los resultados de búsqueda, pero sin suficiente contexto en ese
       momento para reconocer que era la respuesta. Vale la pena seguir insistiendo en
       investigar antes de descartar un bloqueo de API como "imposible de resolver".
+23. **Ambigüedad "tarea" vs. "issue"** -- **hecho (2026-11-02)**. Oscar señaló que llamar
+    "issue 0" a la primera tarea del juego es confuso: en el curso real cada tarea tiene un
+    número pedagógico fijo que es parte de su título (ej. `0.0 Búsqueda y Validación de la
+    Oportunidad de Diseño #1`, `29 Análisis de Impacto Ambiental y Ciclo de Vida #35`), y ese
+    número **no coincide** con el número real de issue que GitHub asigna consecutivamente
+    dentro del repo (`#N`, variable según orden de creación -- el issue marcador del puntaje,
+    por ejemplo, no tiene tarea asociada). "Tarea" y "issue" pasan a ser términos distintos en
+    todo el juego:
+    - **Tarea** = el número fijo 0-4 (prefijo del título del issue, definido en
+      `manifest.tsv`) -- el que importa pedagógicamente, el que el estudiante ve repetido en
+      las instrucciones.
+    - **Issue `#N`** = el número real de GitHub, consecutivo e impredecible dentro del repo
+      -- el que hay que escribir literalmente en la plantilla del PR para cerrarlo.
+    - Frases autorreferenciales ("este issue", "cierra este issue", "escribe el número de
+      este issue") quedan igual -- son correctas, se refieren al objeto real de GitHub en el
+      que el lector está parado.
+    - Corregido en `DB2-Training` (`revision-issue-0.yml` -- incluye renombrar el workflow a
+      "Revisión del tablero (tarea 0, bot)" y las variables/funciones internas;
+      `actualizar_puntaje.js` -- renombradas `tareasDelJuego`/`vueltasTarea0`/
+      `PUNTOS_POR_TAREA`/`TOTAL_TAREAS`; `README.md`; `docs/gifs/README.md`) y en
+      `curso-admin` (los 5 textos de las tareas del juego en `issues_juego/`,
+      `crear_juego_onboarding.sh` -- variables y archivos temporales renombrados de
+      `issue_N_url` a `tarea_N_url`, `sonda_project.sh`, el `README.md`, y de paso dos
+      scripts del curso real -- `agregar_estudiante.sh`/`reasignar_certificados.sh` -- y una
+      rúbrica que tenían la misma ambigüedad con `0.1`). Ningún cambio de lógica, solo texto
+      y nombres. Validado (sintaxis bash/JS/YAML) y propagado a `DB2-Training` y a los tres
+      repos de piloto.

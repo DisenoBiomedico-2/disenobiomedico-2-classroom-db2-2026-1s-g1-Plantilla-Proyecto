@@ -364,7 +364,27 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
       tres repos de piloto.
     - **Confirmado en vivo**: Oscar abrió un PR real en `oscamp0-practica` (#6) y pidió la
       revisión a `botDB2` -- el workflow se disparó, y `botDB2` publicó la aprobación con el
-      concepto de ejemplo completo. Con esto, el flujo completo del juego (creación, siembra,
-      issues, revisión automática) queda verificado de punta a punta. Pendiente, sin prisa:
-      decidir cuándo fusionar `feature/juego-onboarding-github` a `main` -- el juego entra en
-      uso hasta el próximo semestre.
+      concepto de ejemplo completo.
+    - **Hallazgo pedagógico (mismo día, señalado por Oscar)**: ese PR de prueba tenía la
+      plantilla completamente vacía (sin llenar ninguna sección, IA sin declarar, checklist
+      sin marcar, sin issue enlazado) y un archivo (`prueba.md`, "Lorem ipsum") sin relación a
+      ningún issue real -- y `botDB2` aprobó igual, con el mismo concepto enlatado de siempre.
+      El bot nunca miraba el contenido, solo generaba una respuesta fija para pasar el check:
+      vaciaba de sentido justo lo que el juego debía enseñar (que llenar la plantilla,
+      declarar IA y enlazar el issue, importa). Decisión de Oscar entre tres niveles de rigor
+      propuestos: validación **formal** de la plantilla (sin juzgar el contenido del
+      documento, que es juicio humano difícil de automatizar de forma confiable).
+      `revision-del-companero.yml` se reescribió para parsear el cuerpo real del PR contra la
+      plantilla (`.github/pull_request_template.md`) y decidir `APPROVE` o `REQUEST_CHANGES`:
+      secciones llenas, declaración de IA respondida Sí/No (no el placeholder "Sí / No"),
+      checklist marcado, número de issue válido enlazado. Si falta algo, el bot pide cambios
+      listando exactamente qué; si está completo, aprueba citando lo que el PR dice haber
+      hecho (en vez de un texto genérico). Verificado en vivo contra el mismo PR #6: con la
+      plantilla vacía, `botDB2` respondió `CHANGES_REQUESTED` con la lista correcta de lo que
+      faltaba; tras llenarla correctamente, respondió `APPROVE` citando el contenido real de
+      "Qué se hizo". Propagado a `DB2-Training` y a los tres repos de piloto (incluida la rama
+      del PR abierto en `oscamp0-practica`).
+    - Con esto, el flujo completo del juego (creación, siembra, issues, revisión automática
+      con validación real de la plantilla) queda verificado de punta a punta. Pendiente, sin
+      prisa: decidir cuándo fusionar `feature/juego-onboarding-github` a `main` -- el juego
+      entra en uso hasta el próximo semestre.

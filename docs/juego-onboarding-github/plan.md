@@ -338,3 +338,33 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
       que hacer Oscar a mano o disparando el workflow vía `POST .../dispatches` (REST, sin
       GraphQL) desde aquí. El workflow en sí corre sin problema en la infraestructura de
       GitHub.
+11. **Pivote: repo de equipo → repo individual + bot `botDB2`** — **hecho, verificado de punta
+    a punta (2026-11-02)**. Oscar identificó que con repo compartido todos los integrantes
+    reales de un equipo intentarían resolver los mismos Issues al mismo tiempo (condición de
+    carrera), y que varias de las "trampas" planeadas para el antiguo Issue 4 (cambiar el
+    nombre de la rama ya abierta, archivo fuera de cualquier PR) eran confusas o imposibles en
+    la práctica. Se rediseñó a **un repo por estudiante** (`<usuario>-practica`) con una cuenta
+    bot real (`botDB2`, miembro de la org) como "compañero de práctica" -- deja ramas con
+    trabajo empezado (a veces rotas a propósito, a veces incompletas) y aprueba los PR cuando
+    se le pide revisión. Esto también resuelve de forma natural la restricción nativa de
+    GitHub de que el autor de un PR no puede aprobar su propio PR. Detalle completo en
+    `curso-admin/README.md` (sección "Juego de onboarding").
+    - Piloto repetido con el nuevo diseño (`oscampo-practica`, `oscamp0-practica`,
+      `ivasaor-practica`): repos, invitaciones (estudiante + `botDB2`), milestone, 5 issues,
+      Project Board y las dos ramas pre-sembradas por el bot (`botDB2-patch-1` para el issue 3,
+      `estado-del-arte-proyecto` con un `<!-- TODO -->` para el nuevo issue 4 "continuar el
+      trabajo de un compañero") -- todo verificado contra el contenido real vía API.
+    - **Bug encontrado y corregido**: `revision-del-companero.yml` nunca se disparaba --
+      el string multilínea del concepto de aprobación no tenía sus líneas de continuación
+      indentadas al nivel del *block scalar* de YAML (`run: |`), así que el parser cortaba el
+      bloque antes de tiempo y las líneas siguientes quedaban como claves sueltas a nivel raíz
+      del documento, corrompiendo el YAML completo (GitHub ni siquiera podía leer el campo
+      `name:`, y el workflow aparecía con el nombre del archivo). Corregido con `$'...\n...'`
+      (ANSI-C quoting de bash) en una sola línea lógica, propagado a `DB2-Training` y a los
+      tres repos de piloto.
+    - **Confirmado en vivo**: Oscar abrió un PR real en `oscamp0-practica` (#6) y pidió la
+      revisión a `botDB2` -- el workflow se disparó, y `botDB2` publicó la aprobación con el
+      concepto de ejemplo completo. Con esto, el flujo completo del juego (creación, siembra,
+      issues, revisión automática) queda verificado de punta a punta. Pendiente, sin prisa:
+      decidir cuándo fusionar `feature/juego-onboarding-github` a `main` -- el juego entra en
+      uso hasta el próximo semestre.

@@ -200,6 +200,17 @@ Reutiliza exactamente los artefactos de §3 — el repo de práctica corre con l
 plantillas/Actions/protecciones que los repos reales, así la práctica es 1:1, no una
 simulación aparte que hay que volver a traducir.
 
+**Apoyo visual para quien nunca usó GitHub (2026-11-02)**: Oscar notó que el issue `2`
+(el más denso: rama + IA + permalink + tabla de `USO-IA.md` + PR) puede resultar confuso sin
+ver cómo se ve cada paso. En vez de producir video (esta sesión no puede grabar pantalla), se
+desglosó el issue en 7 micro-pasos explícitos con 5 gifs cortos embebidos por URL
+(`DB2-Training/docs/gifs/*.gif`, vía `raw.githubusercontent.com` para que funcionen desde
+cualquier repo generado de la plantilla sin duplicar archivos). La guía de qué grabar y con
+qué nombre queda en `DB2-Training/docs/gifs/README.md` — **pendiente que Oscar grabe y suba
+los 5 archivos reales**, los embeds hoy muestran ícono roto hasta entonces. Los mismos gifs
+sirven para los issues `1` y `3` (comparten la mecánica de rama/PR/revisión) y para el flujo
+real del proyecto — no hay que grabar nada aparte si se reutilizan ahí también.
+
 ## 5. Verificación
 
 Lo que el profesor necesita ver antes/durante la reunión (paso 8 del flujo) ya está casi

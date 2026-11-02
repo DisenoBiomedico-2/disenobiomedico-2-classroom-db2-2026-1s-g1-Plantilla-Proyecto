@@ -603,3 +603,36 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
       `main` -- el juego entra en uso hasta el próximo semestre. Posible seguimiento, no
       urgente: reportarle este bug a GitHub Support (reproducible con el issue `#20` de
       `biomed` como ejemplo real y verificable).
+21. **Investigación web antes de descartarlo del todo** -- **hecho (2026-11-02)**. Oscar
+    pidió no descartar el chequeo de fechas sin revisar ampliamente si es un bug conocido.
+    Búsqueda + dos fetches completos:
+    - [Issue #66, mochan-tk/agentic-dev-kit-for-codex](https://github.com/mochan-tk/agentic-dev-kit-for-codex/issues/66)
+      -- reporta `gh project item-list --format json` devolviendo `null` para campos de
+      fecha personalizados llamados literalmente "Start date"/"Target date" -- pero dice que
+      el GraphQL `fieldValues` crudo (mismos fragmentos que usamos: `ProjectV2ItemFieldDateValue`)
+      **sí** devolvía el valor correcto ahí. Es decir: en su caso el bug estaba en el CLI, no
+      en GraphQL -- el opuesto de lo que esperábamos.
+    - [Discusión de la comunidad #195849, "Timestamp fields in GitHub Projects"](https://github.com/orgs/community/discussions/195849)
+      -- un comentario (OffCrazyFreak, jul 2026) confirma el mismo síntoma que nosotros, pero
+      para los campos automáticos **Created/Updated/Closed** (no para campos de fecha
+      personalizados como los nuestros): "Querying `ProjectV2Item.fieldValues` returns
+      entries for every other field on an item... but nothing at all for the CREATED /
+      UPDATED / CLOSED fields." Sin respuesta de GitHub, discusión marcada "Unanswered".
+    - **Ninguna fuente encontrada confirma exactamente nuestro síntoma** (campo de fecha
+      *personalizado*, tipo DATE, invisible tanto por GraphQL `fieldValues` como por
+      `fieldValueByName` como por el CLI `gh project item-list`). Para asegurarse de que no
+      era simplemente que el CLI "sí" funcionara (como en el caso de mochan-tk), se probó
+      `gh project item-list 56 --owner DisenoBiomedico-2 --format json` contra
+      `ivasaor-practica` -- **el campo ni siquiera aparece como clave en el JSON** (más
+      grave que un `null`: directamente ausente). Confirma que en nuestro caso **ningún**
+      camino (GraphQL `fieldValues`, `fieldValueByName`, ni el CLI oficial) expone el valor,
+      a diferencia del caso de mochan-tk donde GraphQL sí funcionaba.
+    - **Conclusión**: parece ser un bug genuino de GitHub Projects v2 para campos de fecha
+      personalizados -- posiblemente menos reportado que el de los campos automáticos
+      Created/Updated/Closed (ese sí tiene un hilo de comunidad), pero con el mismo patrón
+      de fondo (GitHub expone el campo en `ProjectV2.fields` pero no su valor por item). La
+      decisión de quitar el chequeo automático de fechas del bot se mantiene -- no hay
+      camino de API conocido, documentado o encontrado que lo resuelva hoy. Vale la pena
+      reportarlo a GitHub Support con la evidencia reunida (dos proyectos reales,
+      `ivasaor-practica` y `biomed`, tres caminos de consulta distintos, todos fallando
+      igual) cuando Oscar tenga tiempo -- no es la prioridad ahora mismo del juego.

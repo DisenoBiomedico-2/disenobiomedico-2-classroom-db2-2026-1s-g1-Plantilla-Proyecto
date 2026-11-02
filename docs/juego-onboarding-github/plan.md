@@ -474,5 +474,32 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
     **eligió dejarlo así**: el juego practica la mecánica (ramas, PR, revisión con concepto,
     declaración de IA), no hay contenido real que un profesor revisaría, y simular esa
     revisión sería "teatro sin sustancia". Sin cambios de código para este punto.
+17. **Oscar reconsideró §16**: "necesitamos que haya una revisión de que el issue 0 se
+    cumplió correctamente... si no pasa nada si lo haces bien o mal, no hay dinámica de
+    juego". A diferencia de los issues `1`-`4` (contenido real, sin nada que automatizar sin
+    juicio humano), el issue `0` **sí** es puramente mecánico (vista Roadmap, autoasignación,
+    fechas) -- verificable sin juicio de contenido. **Hecho (2026-11-02)**: sonda GraphQL
+    (`scripts/sonda_project.sh` + `.github/workflows/sonda-project.yml` en `curso-admin`,
+    herramienta exploratoria permanente) contra el Project real de `ivasaor-practica` confirmó
+    que SÍ es verificable (vista Roadmap, asignados por issue, fechas Start/Target date) -- y
+    de paso confirmó el problema real: `ivasaor` había autoasignado los 4 issues y creado la
+    vista Roadmap, pero **ninguno tenía fecha de inicio ni final puesta**. "Markers →
+    Milestone" no está expuesto en el schema público, queda fuera de lo verificable.
+    - Nuevo workflow `revision-issue-0.yml` en `DB2-Training`: al cerrarse el issue "0
+      Organiza el proyecto", `botDB2` verifica (vía GraphQL) la vista Roadmap, la
+      autoasignación y las fechas de cada issue `1`-`4`; si falta algo, **reabre el issue**
+      con un comentario listando exactamente qué falta (mismo patrón que el profesor reabre
+      un issue con observaciones en el proyecto real, README §3); si todo está completo, lo
+      deja cerrado con un comentario de confirmación. Verificado en seco contra los datos
+      reales capturados de `ivasaor-practica` (caso incompleto → reabre con la lista correcta
+      de 8 faltantes; caso completo simulado → no reabre, confirma). Propagado a los tres
+      repos de piloto.
+    - Requiere ampliar `BOT_COMPANERO_TOKEN`: permiso de repo "Issues: Read and write" +
+      permiso de organización "Projects: Read" -- pendiente de que Oscar lo agregue (solo se
+      puede editar logueado como `botDB2`); prueba en vivo pendiente hasta entonces.
+    - Oscar también planteó que el juego necesita **puntaje** para dar motivación ("pensemos
+      en que se trata de un juego") -- contradice el "pass/fail, sin nota" fijado en todos los
+      README hasta ahora. Tema abierto, sin diseño cerrado todavía -- ver próxima entrada de
+      este plan cuando se decida.
     - Pendiente, sin prisa: decidir cuándo fusionar `feature/juego-onboarding-github` a
       `main` -- el juego entra en uso hasta el próximo semestre.

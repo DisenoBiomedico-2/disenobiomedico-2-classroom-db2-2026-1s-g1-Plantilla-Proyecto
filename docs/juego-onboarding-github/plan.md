@@ -432,5 +432,25 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
       da el tip preventivo de crear la rama con buen nombre antes de tocar archivos.
     - Propagado a `DB2-Training`, a los tres repos de piloto, y al cuerpo ya creado del issue
       `3` en los tres (vía `PATCH .../issues/{n}`, para que coincida con el texto nuevo).
+14. **Hallazgo: `botDB2` no aparecía al asignar issues (probando como `ivasaor`), y pregunta
+    sobre ocultar a `oscampo`** -- **hecho (2026-11-02)**. Probando como `ivasaor` en
+    incógnito, Oscar solo vio a `oscampo` y a sí mismo en el selector de asignados del
+    Project Board -- no a `botDB2`. Verificado con `GET /repos/.../assignees/botDB2` (204):
+    `botDB2` **sí** es asignable técnicamente; lo que Oscar vio es, con toda probabilidad, la
+    lista corta de "sugeridos" que GitHub muestra por defecto en ese selector (no se confirmó
+    con una búsqueda explícita por nombre, pero la API es la fuente de verdad de a quién se
+    puede asignar). Oscar preguntó además si podía ocultar su propio perfil de esa lista.
+    Respuesta: no es posible mientras sea **Owner** de la organización -- GitHub da acceso
+    automático a todos los repos a los Owners, sin forma de excluir uno de un repo puntual.
+    La alternativa real (mover la administración a una cuenta de servicio aparte, bajando el
+    perfil personal de Oscar a un rol sin acceso automático) se le presentó como opción, pero
+    Oscar eligió la solución simple: solo guiar por texto. El issue `0` ahora presenta a
+    `botDB2` ("tu compañero durante esta práctica, a quien vas a usar para algunas tareas
+    específicas que se te explicarán más adelante") y a `oscampo` explícitamente, y aclara
+    que no se les debe asignar ningún issue aunque aparezcan como opciones. De paso, se
+    corrigió la voz plural que quedaba en el resto del archivo (resabio del modelo de equipo
+    anterior al pivote) a singular, para que quedara consistente con el resto del juego.
+    Propagado a `DB2-Training`, a los tres repos de piloto, y al cuerpo ya creado del issue
+    `0` en los tres.
     - Pendiente, sin prisa: decidir cuándo fusionar `feature/juego-onboarding-github` a
       `main` -- el juego entra en uso hasta el próximo semestre.

@@ -636,3 +636,42 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
       reportarlo a GitHub Support con la evidencia reunida (dos proyectos reales,
       `ivasaor-practica` y `biomed`, tres caminos de consulta distintos, todos fallando
       igual) cuando Oscar tenga tiempo -- no es la prioridad ahora mismo del juego.
+22. **Resuelto de verdad: Oscar encontró el camino correcto** -- **hecho (2026-11-02)**. Pidió
+    no descartarlo del todo y seguir explorando. Mientras evaluaba las propuestas (declarar
+    fechas como texto, captura+visión), notó algo en la UI: en el issue de `oscamp0-practica`
+    el panel "Fields" solo mostraba `Priority` -- no Start date/Target date -- hasta que
+    encontró un diálogo **"Add issue fields"** ("Use issue fields defined by
+    disenobiomedico-2 to keep information consistent across projects"), con checkboxes para
+    "Start date" y "Target date". Son **"Issue fields" de organización** -- una función
+    *distinta* de los campos custom de Project (coincide con la discusión "Issue fields
+    [Private preview] #175366" que había aparecido en la búsqueda anterior sin profundizar
+    en ella). Al marcarlos y agregarlos, el panel "Fields" apareció con los valores
+    correctos, igual que en `biomed`.
+    - Investigando el mecanismo: la API REST estándar de Issues
+      (`GET /repos/{owner}/{repo}/issues/{n}`) **ya trae una clave `issue_field_values`** con
+      los valores correctos -- confirmado con datos reales (`"Start date": "2026-11-04"`, con
+      `issue_field_id` coincidiendo exactamente con el `issue_field_id` que la API REST
+      *nueva* de Projects (`/orgs/{org}/projectsV2/{n}/fields`, agregada en septiembre 2025,
+      encontrada en la búsqueda web de esta misma investigación) ya mostraba para esos campos
+      cuando se listaban sus `fields`).
+    - **Hallazgo clave**: `ivasaor-practica` -- que **nunca** pasó por el diálogo manual --
+      también tenía `issue_field_values` perfectamente poblado, con los mismos IDs de campo.
+      Igual `biomed#20` (el mismo issue de la captura original). Confirma que estos campos
+      son de **organización**, compartidos entre todos los repos, y que el dato **siempre
+      estuvo ahí y siempre fue legible** -- el problema nunca fue que faltara vincular nada
+      a mano, fue que `ProjectV2Item.fieldValues`/`fieldValueByName` (GraphQL, API de
+      *Projects*) simplemente nunca fue el camino correcto para leer este tipo de valor. No
+      hizo falta ningún cambio en `crear_project.sh` ni en cómo se crean los Projects.
+    - **Arreglado**: `revision-issue-0.yml` vuelve a verificar fechas, ahora leyendo
+      `issue.issue_field_values` vía REST (simple, sin GraphQL de Projects en absoluto) en
+      vez del camino roto. `actualizar_puntaje.js` excluye del conteo de vueltas los
+      comentarios "falta la fecha" generados mientras el chequeo estuvo roto (antes de
+      2026-11-02T19:00Z); los de después sí cuentan. Verificado en seco (casos mixtos por
+      issue) y en vivo contra `ivasaor-practica`: issue `0` cerrado sin reabrir, "todo está
+      completo" (con fechas), puntaje correcto en 20/100. Propagado a `DB2-Training` y a los
+      tres repos de piloto.
+    - **Lección**: la investigación web extensa (dos rondas) fue la que encontró la pista
+      correcta ("Issue fields" como función separada) incluso antes de que Oscar la viera en
+      pantalla -- aparecía en los resultados de búsqueda, pero sin suficiente contexto en ese
+      momento para reconocer que era la respuesta. Vale la pena seguir insistiendo en
+      investigar antes de descartar un bloqueo de API como "imposible de resolver".

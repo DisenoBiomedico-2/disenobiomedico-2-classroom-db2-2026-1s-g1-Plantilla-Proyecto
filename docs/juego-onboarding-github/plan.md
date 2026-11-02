@@ -554,5 +554,36 @@ amerita ser requisito de aprobación del corte en vez de solo puntaje.
       antes de eso el marcador solo informa progreso. Verificado en vivo: con el issue `0`
       reabierto otra vez (2 reaperturas, 0/5 completados) el marcador mostró correctamente
       **0/100**, no un número inflado.
+20. **Bug real de GitHub: la API de Projects v2 no devuelve Start date/Target date** --
+    **hecho (2026-11-02)**. Oscar reportó que `ivasaor` puso las fechas (capturas con "Nov
+    4, 2026" etc. visibles en la columna de la tabla) y el bot las seguía marcando como
+    faltantes. Investigación:
+    - Confirmado que el dato SÍ estaba guardado del lado de GitHub: Oscar recargó la página
+      completa y las fechas seguían ahí.
+    - Sondeado con `__typename` (nuevo, agregado a `sonda_project.sh`) qué tipos de
+      `fieldValues` devuelve realmente la API para cada item: `ProjectV2ItemFieldUserValue`,
+      `Repository`, `Milestone`, dos `ProjectV2ItemIssueFieldValue` sin identificar, `Title`,
+      `Status` -- **nunca** un `ProjectV2ItemFieldDateValue`, ni siquiera para los campos
+      automáticos Created/Updated/Closed (que también son tipo fecha).
+    - Probado un camino de consulta distinto, `fieldValueByName(name: "Start date")`
+      directo sobre el item -- también vacío.
+    - Para descartar que fuera un problema de editar desde touch/tablet (la hipótesis
+      inicial, porque las capturas de `ivasaor` eran de un iPad): Oscar editó las fechas él
+      mismo **desde su PC** -- la sonda, corrida de nuevo, **seguía sin ver el valor**.
+      Descarta touch/tablet como causa: es un problema general del campo tipo fecha en la
+      API pública de Projects v2, reproducible sin importar el dispositivo.
+    - **Decisión**: se quitó la verificación de fechas de `revision-issue-0.yml` -- mantenerla
+      bloquearía a cualquier estudiante sin que hubiera nada mal de su parte. Ahora solo
+      verifica vista Roadmap + autoasignación (ambos confirmados confiables). El comentario
+      de éxito le pide al estudiante que revise las fechas él mismo, sin automatizarlo.
+    - **Corrección de puntaje**: las 5 reaperturas que `ivasaor` sufrió por este bug (todas
+      con "falta la fecha" en el cuerpo) no se pudieron borrar del historial del repo --
+      intentar `DELETE .../issues/comments/{id}` fue bloqueado por el clasificador de
+      permisos de la sesión (acción destructiva en un sistema externo). En vez de eso,
+      `actualizar_puntaje.js` ahora excluye del conteo cualquier comentario de reapertura
+      que contenga "falta la fecha" (único del chequeo ya removido) -- corrige el puntaje
+      sin tocar el historial de GitHub. Verificado en vivo: issue `0` de `ivasaor` cerrado
+      de nuevo sin reabrir, puntaje correcto en **20/100 (1/5 completado, 0 vueltas)**.
     - Pendiente, sin prisa: decidir cuándo fusionar `feature/juego-onboarding-github` a
-      `main` -- el juego entra en uso hasta el próximo semestre.
+      `main` -- el juego entra en uso hasta el próximo semestre. Posible seguimiento, no
+      urgente: reportarle este bug a GitHub Support.

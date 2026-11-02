@@ -30,13 +30,18 @@ El repo de su equipo **ya nace con esto hecho automáticamente**, no hay que cre
 
 Lo único que queda a mano, porque GitHub no lo permite por API, es la **vista** del Project:
 1.  Abran la pestaña **Projects** → el Project ya vinculado.
-2.  En la vista **Table**: agreguen la columna **Milestone** (botón `+` al final de las
-    columnas) y oculten las que no usen, para ver de un vistazo a qué corte pertenece cada
-    tarea.
-3.  Asignen un **Responsable** (puede ser más de uno) y una **Fecha** a cada tarjeta —
+2.  Creen una vista **Roadmap** (`+` junto a las vistas existentes → Layout: Roadmap). Si
+    GitHub les pide crear los campos **Start date** y **Target date** (o **End date**),
+    créenlos.
+3.  En el menú de configuración de la vista (ícono de controles deslizantes), activen
+    **Markers → Milestone** — así se ve en el Roadmap la marca de inicio y fin de cada uno
+    de los 3 cortes del semestre (Semana 1 a 5, 6 a 11, 12 a 17).
+4.  Para cada tarea: asignen un **Responsable** (puede ser más de uno) y coloquen una
+    **fecha de inicio y una fecha final**, dentro de la ventana de su milestone —
     cada integrante debe quedar asignado a al menos una tarea propia.
-4.  Opcional: creen una vista adicional tipo **Roadmap** o **Board** agrupada por `Status`,
-    con "Save view" para que quede guardada para todo el equipo.
+5.  Guarden la vista (**Save view**) para que quede disponible para todo el equipo.
+6.  Opcional: creen una vista adicional tipo **Table** (con la columna **Milestone**
+    agregada) o **Board** agrupada por `Status`, para otras formas de ver el mismo tablero.
 
 ### 2. Cómo desarrollar y entregar una tarea
 El profesor **NO revisará** carpetas al azar buscando archivos. El profesor revisará el
